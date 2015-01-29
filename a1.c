@@ -206,6 +206,7 @@ int checkUpdateTime() {
     int milsec = 10000; //Milliseconds;
     double diff;
     
+    /*Determine if the timer has been set*/
     if (resetTime == 1) {
         /*Reset the timer*/
         updateStart = clock();
@@ -215,7 +216,6 @@ int checkUpdateTime() {
         /*Determine if 1 second has passed*/
         updateEnd = clock();
         diff = ((updateEnd - updateStart) / milsec);
-        //printf("HERE %dm %d, %d \n", (int)updateStart, (int)updateEnd, diff);
         
         if (diff >= 0.5) {            
             resetTime = 1;  //Reset the timer
@@ -223,7 +223,7 @@ int checkUpdateTime() {
         }
     }    
     
-    return 0;
+    return 0;   //Don't update the function
 }
 
 	/*** update() ***/
