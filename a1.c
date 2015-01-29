@@ -232,71 +232,71 @@ int checkUpdateTime() {
 	/*  system is running */
 	/* -gravity must also implemented here, duplicate collisionResponse */
 void update() {
-int i, j, k;
-float *la;
+   int i, j, k;
+   float *la;
 
-    if (checkUpdateTime()) {
-	/* sample animation for the test world, don't remove this code */
-	/* -demo of animating mobs */
-   if (testWorld) {
-	/* sample of rotation and positioning of mob */
-	/* coordinates for mob 0 */
-      static float mob0x = 50.0, mob0y = 25.0, mob0z = 52.0;
-      static float mob0ry = 0.0;
-      static int increasingmob0 = 1;
-	/* coordinates for mob 1 */
-      static float mob1x = 50.0, mob1y = 25.0, mob1z = 52.0;
-      static float mob1ry = 0.0;
-      static int increasingmob1 = 1;
+   if (checkUpdateTime()) {
+      /* sample animation for the test world, don't remove this code */
+      /* -demo of animating mobs */
+      if (testWorld) {
+      /* sample of rotation and positioning of mob */
+      /* coordinates for mob 0 */
+         static float mob0x = 50.0, mob0y = 25.0, mob0z = 52.0;
+         static float mob0ry = 0.0;
+         static int increasingmob0 = 1;
+      /* coordinates for mob 1 */
+         static float mob1x = 50.0, mob1y = 25.0, mob1z = 52.0;
+         static float mob1ry = 0.0;
+         static int increasingmob1 = 1;
 
-	/* move mob 0 and rotate */
-	/* set mob 0 position */
-      setMobPosition(0, mob0x, mob0y, mob0z, mob0ry);
+      /* move mob 0 and rotate */
+      /* set mob 0 position */
+         setMobPosition(0, mob0x, mob0y, mob0z, mob0ry);
 
-	/* move mob 0 in the x axis */
-      if (increasingmob0 == 1)
-         mob0x += 0.2;
-      else 
-         mob0x -= 0.2;
-      if (mob0x > 50) increasingmob0 = 0;
-      if (mob0x < 30) increasingmob0 = 1;
+      /* move mob 0 in the x axis */
+         if (increasingmob0 == 1)
+            mob0x += 0.2;
+         else 
+            mob0x -= 0.2;
+         if (mob0x > 50) increasingmob0 = 0;
+         if (mob0x < 30) increasingmob0 = 1;
 
-	/* rotate mob 0 around the y axis */
-      mob0ry += 1.0;
-      if (mob0ry > 360.0) mob0ry -= 360.0;
+      /* rotate mob 0 around the y axis */
+         mob0ry += 1.0;
+         if (mob0ry > 360.0) mob0ry -= 360.0;
 
-	/* move mob 1 and rotate */
-      setMobPosition(1, mob1x, mob1y, mob1z, mob1ry);
+      /* move mob 1 and rotate */
+         setMobPosition(1, mob1x, mob1y, mob1z, mob1ry);
 
-	/* move mob 1 in the z axis */
-	/* when mob is moving away it is visible, when moving back it */
-	/* is hidden */
-      if (increasingmob1 == 1) {
-         mob1z += 0.2;
-         showMob(1);
+      /* move mob 1 in the z axis */
+      /* when mob is moving away it is visible, when moving back it */
+      /* is hidden */
+         if (increasingmob1 == 1) {
+            mob1z += 0.2;
+            showMob(1);
+         } else {
+            mob1z -= 0.2;
+            hideMob(1);
+         }
+         if (mob1z > 72) increasingmob1 = 0;
+         if (mob1z < 52) increasingmob1 = 1;
+
+      /* rotate mob 1 around the y axis */
+         mob1ry += 1.0;
+         if (mob1ry > 360.0) mob1ry -= 360.0;
+       /* end testworld animation */
       } else {
-         mob1z -= 0.2;
-         hideMob(1);
+
+      /* your code goes here */
+         /*Determine if the fly control is on or off*/
+         if (flycontrol == 0) {
+            gravity();
+         } 
+
+         /*Move the clouds*/
+         moveCloud();    
       }
-      if (mob1z > 72) increasingmob1 = 0;
-      if (mob1z < 52) increasingmob1 = 1;
-
-	/* rotate mob 1 around the y axis */
-      mob1ry += 1.0;
-      if (mob1ry > 360.0) mob1ry -= 360.0;
-    /* end testworld animation */
-   } else {
-
-	/* your code goes here */
-      /*Determine if the fly control is on or off*/
-      if (flycontrol == 0) {
-         gravity();
-      } 
-
-      /*Move the clouds*/
-      moveCloud();    
    }
-    }
 }
 
 /*Pulls the view point(camera) down the gameworld*/
