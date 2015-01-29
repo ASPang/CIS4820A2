@@ -375,19 +375,28 @@ void avoidCubeEdge() {
 	/* -x,y are the screen coordinates when the mouse is pressed or */
 	/*  released */ 
 void mouse(int button, int state, int x, int y) {
-
-   if (button == GLUT_LEFT_BUTTON)
+    /*Determine the angle*/
+//  getViewPosition(float *x, float *y, float *z);
+//  getViewOrientation(float *xaxis, float *yaxis, float *zaxis)
+    
+    if (button == GLUT_LEFT_BUTTON) {
       printf("left button - ");
-   else if (button == GLUT_MIDDLE_BUTTON)
+    }
+    else if (button == GLUT_MIDDLE_BUTTON) {
       printf("middle button - ");
-   else
+    }
+        else {
       printf("right button - ");
-
-   if (state == GLUT_UP)
+        }
+        
+        if (state == GLUT_UP) {
       printf("up - ");
-   else
+        }
+        else {
       printf("down - ");
+        }
 
+    printf("Button number = %d and the state = %d \n", button, state);
    printf("%d %d\n", x, y);
 }
 
