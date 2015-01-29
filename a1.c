@@ -194,6 +194,37 @@ void gameWall() {
    }
 }
 
+/* 
+ * Calculate the amount of time that have passed
+ * 1 = true
+ * 0 = false
+ */
+int checkUpdateTime() {
+    static clock_t updateStart;
+    clock_t updateEnd;
+    static int resetTime = 1;
+    int milsec = 10000; //Milliseconds;
+    double diff;
+    
+    if (resetTime == 1) {
+        /*Reset the timer*/
+        updateStart = clock();
+        resetTime = 0;
+    }
+    else if (resetTime == 0) {
+        /*Determine if 1 second has passed*/
+        updateEnd = clock();
+        diff = ((updateEnd - updateStart) / milsec);
+        //printf("HERE %dm %d, %d \n", (int)updateStart, (int)updateEnd, diff);
+        
+        if (diff >= 0.5) {            
+            resetTime = 1;  //Reset the timer
+            return 1;    //Return true that 1 second has passed
+        }
+    }    
+    
+    return 0;
+}
 
 	/*** update() ***/
 	/* background process, it is called when there are no other events */
@@ -204,6 +235,7 @@ void update() {
 int i, j, k;
 float *la;
 
+    if (checkUpdateTime()) {
 	/* sample animation for the test world, don't remove this code */
 	/* -demo of animating mobs */
    if (testWorld) {
@@ -264,6 +296,7 @@ float *la;
       /*Move the clouds*/
       moveCloud();    
    }
+    }
 }
 
 /*Pulls the view point(camera) down the gameworld*/
@@ -497,8 +530,8 @@ void perlinNoise() {
    }
 
    /*Go through the world array and build up the game world*/
-   for (x = 0; x < (WORLDX - 1); x++) {
-      for (z = 0; z < (WORLDZ - 1); z++) {
+   for (x = 0; x < (WORLDX); x++) {
+      for (z = 0; z < (WORLDZ); z++) {
          perX = x / 13.5; 
          perZ = z / 13.5; 
 

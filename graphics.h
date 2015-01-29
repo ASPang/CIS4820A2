@@ -3,6 +3,8 @@
 #include <OpenGL/glu.h>
 #include <GLUT/glut.h>
 
+#include <time.h>
+
         /* world size and storage array */
 #define WORLDX 100
 #define WORLDY 50
