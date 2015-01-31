@@ -33,3 +33,7 @@ void createCloud(int, int, int, int *, int);
 void moveCloud();
 void updateCloudLoc();
 
+
+/*Functions for CIS4820 Assignment 2*/
+float calSpeed(int);
+float calAngle(int);

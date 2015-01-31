@@ -378,27 +378,142 @@ void mouse(int button, int state, int x, int y) {
     /*Determine the angle*/
 //  getViewPosition(float *x, float *y, float *z);
 //  getViewOrientation(float *xaxis, float *yaxis, float *zaxis)
+    static int oldMouPosX, oldMouPosY;
+    static float speed, angle;
+    
+    
     
     if (button == GLUT_LEFT_BUTTON) {
-      printf("left button - ");
+      printf("left button - \n");
     }
     else if (button == GLUT_MIDDLE_BUTTON) {
-      printf("middle button - ");
+      printf("middle button - \n");
     }
-        else {
-      printf("right button - ");
-        }
+    else if (button == GLUT_RIGHT_BUTTON) {
+        printf("right button - \n");
         
-        if (state == GLUT_UP) {
-      printf("up - ");
-        }
-        else {
-      printf("down - ");
-        }
+    }
+    else {
+        printf("ERROR with button - \n");
+    }
+    
+        
+    if (state == GLUT_DOWN && button == GLUT_LEFT_BUTTON) {
+        /*Fire the projectile*/
+        printf("up - ");
+        
+    }
+    else if (state == GLUT_DOWN && button == GLUT_RIGHT_BUTTON) {
+        /*Save the orientation information*/
+        oldMouPosX = x;
+        oldMouPosY = y;
+        
+        
+        printf("setting up angle and speed \n");   //TESTING!!!!
+        
+        speed = -1;
+        angle = -1;
+    }
+    else if (state == GLUT_UP && button == GLUT_RIGHT_BUTTON){
+        /*Determine the speed*/
+        speed = calSpeed(oldMouPosX);
+        
+        /*Determine the angle*/
+        angle = calAngle(oldMouPosY);
+    
+        
+        printf("speed = %0.2f and angle is %0.2f\n", speed, angle);
+        
+    }
+    else {
+        printf("Don't know which button was pressed \n");
+    }
 
-    printf("Button number = %d and the state = %d \n", button, state);
-   printf("%d %d\n", x, y);
+    //printf("Button number = %d and the state = %d \n", button, state);
+    printf("mouseX = %d, mouseY = %d\n", x, y);
+    
+    printf("old mouse pos = %d, %d \n", oldMouPosX, oldMouPosY);
+    //setProjectile(oldMouPosX, oldMouPosY, &speed, &angle);
+    //oldMouPosX += 1;
+    //printf("old mouse pos = %d, %d \n", oldMouPosX, oldMouPosY);
+    printf("----------\n");
 }
+
+float calSpeed(int oldPos) {
+    float xaxis, yaxis, zaxis;
+    float speed;
+    
+    /*Get the current orientation*/
+    getViewOrientation(&xaxis, &yaxis, &zaxis);
+    
+    /*Calculate the speed*/
+    speed = xaxis - (float)oldPos;
+    speed /= 1000.0;
+    
+    /*Modify the speed to be between 0.0 and 1.0*/
+    speed += 0.5;
+    
+    if (speed > 1.0) {
+        speed = 1.0;
+    }
+    else if (speed <= -1.0) {
+        speed = 0.0;
+    }    
+    
+    printf("speed = %0.2f \n", speed);
+    
+    return speed;
+}
+
+float calAngle(int oldPos) {
+    float xaxis, yaxis, zaxis;
+    float angle;
+    
+    /*Get the current orientation*/
+    getViewOrientation(&xaxis, &yaxis, &zaxis);
+    
+    /*Calculate the angle*/
+    angle = yaxis - oldPos;
+    angle = (angle * (-1)) / 10.0;
+    
+    
+    /*Determine the angle - method 1 */
+    if (angle >= 90.0) {
+        angle = 90.0;
+    }
+    else if (angle <= 0.0) {
+        angle = 0.0;
+    }
+    
+    return angle;
+}
+
+void setProjectile(int oldPos, int newPos, int *diff) {
+    float xaxis, yaxis, zaxis;
+    float x, y, z;
+    
+    /*Determine the current position of the mouse*/
+    getViewPosition(&x, &y, &z);
+    //getViewOrientation(&xaxis, &yaxis, &zaxis);
+    
+    printf("getViewPosition = %0.2f, %0.2f, %0.2f \n", x, y, z);
+    printf("--getViewOrientation = %0.2f, %0.2f, %0.2f \n", xaxis, yaxis, zaxis);
+    
+    /*Calculate the Speed*/
+     //diff = newPos;
+    
+    
+    
+    
+    
+    //oldMouPosX += 500;
+    
+    
+    
+   
+}
+
+
 
 
 /*Main function in the game which sets up the environment and how it looks*/
@@ -473,6 +588,32 @@ void landscape() {
    waterFlow();   //Add body of water
    mountainTops(); //Add terrain
    cloudFloat();  //Add clounds
+
+    worldOrientation();
+}
+
+void worldOrientation() {
+    int y = 40;
+    
+    /*NORTH*/
+    world[80][y][50] = 2;   //blue
+    world[80][y-1][50] = 2;   //blue
+    world[80][y-2][50] = 2;   //blue
+    
+    /*EAST*/
+    world[50][y][80] = 4;   //black
+    world[51][y-1][80] = 4;   //black
+    world[50][y-2][80] = 4;   //black
+    
+    /*SOUTH*/
+    world[20][y][50] = 3;   //red
+    world[20][y-1][50] = 3;   //red
+    world[20][y-2][50] = 3;   //red
+    
+    /*WEST*/
+    world[50][y][20] = 5;   //white
+    world[51][y-1][20] = 5;   //white
+    world[50][y-2][20] = 5;   //white
 }
 
 /*Create a floor in the game world*/
