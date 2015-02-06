@@ -37,3 +37,5 @@ void updateCloudLoc();
 /*Functions for CIS4820 Assignment 2*/
 float calSpeed(int);
 float calAngle(int);
+
+//int projectileNum = 0;

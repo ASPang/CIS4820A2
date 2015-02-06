@@ -254,10 +254,12 @@ void update() {
          setMobPosition(0, mob0x, mob0y, mob0z, mob0ry);
 
       /* move mob 0 in the x axis */
-         if (increasingmob0 == 1)
+          if (increasingmob0 == 1){
             mob0x += 0.2;
-         else 
+            mob0z += 0.2; }
+         else  {
             mob0x -= 0.2;
+             mob0z -= 0.2;}
          if (mob0x > 50) increasingmob0 = 0;
          if (mob0x < 30) increasingmob0 = 1;
 
@@ -294,7 +296,10 @@ void update() {
          } 
 
          /*Move the clouds*/
-         moveCloud();    
+         moveCloud();
+          
+         /*Update the projectile*/
+          updateProjectiles();
       }
    }
 }
@@ -369,6 +374,19 @@ void avoidCubeEdge() {
 }
 
 
+/*Show all the current projectils on the screen and upate their position*/
+void updateProjectiles() {
+    int i;
+    
+    //for (i = 0; i < MOB_COUNT; i++) {
+        /*Update mob position*/
+        
+        /*Show mob*/
+        showMob(0);
+       
+    //}
+}
+
 	/* called by GLUT when a mouse button is pressed or released */
 	/* -button indicates which button was pressed or released */
 	/* -state indicates a button down or button up event */
@@ -379,6 +397,10 @@ void mouse(int button, int state, int x, int y) {
 //  getViewPosition(float *x, float *y, float *z);
 //  getViewOrientation(float *xaxis, float *yaxis, float *zaxis)
     static int oldMouPosX, oldMouPosY;
+    static int oldX, oldY, oldZ;
+    float xPos, yPos, zPos;
+    float xaxis, yaxis, zaxis;
+    int reminder;
     static float speed, angle;
     
     
@@ -399,31 +421,73 @@ void mouse(int button, int state, int x, int y) {
     
         
     if (state == GLUT_DOWN && button == GLUT_LEFT_BUTTON) {
+        printf("down - ");
+        
         /*Fire the projectile*/
-        printf("up - ");
+        
+        /*Get the current position*/
+        getViewPosition(&xPos, &yPos, &zPos);
+        
+        /*Determine player orientation*/
+        getViewOrientation(&xaxis, &yaxis, &zaxis);
+        
+        reminder = abs((int)yaxis) % 360;
+        printf("orientation of player = %d \n", reminder);
+        
+        xPos *= -1;
+        yPos *= -1;
+        zPos *= -1;
+        
+        if (reminder == 360 || (reminder >= 0 && reminder <=90)) {
+            /*In quadrant 1*/
+            xPos += 1.0;
+            zPos -= 1.0;
+        }
+        else if (reminder > 90 && reminder <= 180) {
+            /*In quadrant 2*/
+            xPos += 0.5;
+            zPos += 0.5;
+        }
+        else if (reminder > 180 && reminder <= 270) {
+            /*In quadrant 3*/
+            xPos -= 1.0;
+            zPos += 1.0;
+        }
+        else if (reminder > 270 && reminder < 360) {
+            /*In quadrant 4*/
+            xPos -= 1.5;
+            zPos -= 1.5;
+        }
+        
+        /*Determine the player's orientation*/
+        
+        /*Create the mob*/
+        //createMob(int number, float x, float y, float z, float mobroty);
+        createMob(0, xPos, yPos, zPos, 0);   //should be createMob(mobNum, x, y, z, 0); mobNum++;
+        
         
     }
     else if (state == GLUT_DOWN && button == GLUT_RIGHT_BUTTON) {
+        printf("setting up angle and speed \n");   //TESTING!!!!
+        
         /*Save the orientation information*/
         oldMouPosX = x;
         oldMouPosY = y;
         
-        
-        printf("setting up angle and speed \n");   //TESTING!!!!
-        
+                
         speed = -1;
         angle = -1;
     }
     else if (state == GLUT_UP && button == GLUT_RIGHT_BUTTON){
         /*Determine the speed*/
-        speed = calSpeed(oldMouPosX);
+        //speed = calSpeed(oldMouPosX);
         
         /*Determine the angle*/
         angle = calAngle(oldMouPosY);
     
         
-        printf("speed = %0.2f and angle is %0.2f\n", speed, angle);
-        
+        //printf("speed = %0.2f and angle is %0.2f\n", speed, angle);
+                
     }
     else {
         printf("Don't know which button was pressed \n");
@@ -468,22 +532,46 @@ float calSpeed(int oldPos) {
 float calAngle(int oldPos) {
     float xaxis, yaxis, zaxis;
     float angle;
+    int reminder;
     
     /*Get the current orientation*/
     getViewOrientation(&xaxis, &yaxis, &zaxis);
     
     /*Calculate the angle*/
     angle = yaxis - oldPos;
-    angle = (angle * (-1)) / 10.0;
+    //angle = (angle * (-1)) / 10.0;
+    printf("original angle = %0.2f,,,,,,,", angle);
+    if (angle < 0) {
+        angle += 45;
+    }
     
+    if (angle > 90) {
+        
+        reminder = (abs((int)angle)) % 90;
+        while (reminder > 90) {
+            reminder = (abs((int)reminder)) % 90;
+        }
+        
+        if (reminder == 0) {
+            angle = 90;
+        }
+        else {
+            angle = abs((float)reminder);
+        }
+    }
+    else {
+        angle = abs(angle);
+    }
+        
+    printf("new angle = %0.2f \n", angle);
     
-    /*Determine the angle - method 1 */
+    /*Determine the angle - method 1 
     if (angle >= 90.0) {
         angle = 90.0;
     }
     else if (angle <= 0.0) {
         angle = 0.0;
-    }
+    }*/
     
     return angle;
 }
