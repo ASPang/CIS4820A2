@@ -401,6 +401,7 @@ void mouse(int button, int state, int x, int y) {
     float xPos, yPos, zPos;
     float xaxis, yaxis, zaxis;
     int reminder;
+    int hor;
     static float speed, angle;
     
     
@@ -440,23 +441,24 @@ void mouse(int button, int state, int x, int y) {
         
         if (reminder == 360 || (reminder >= 0 && reminder <=90)) {
             /*In quadrant 1*/
-            xPos += 1.0;
-            zPos -= 1.0;
+            /*xPos += 1.0;
+            zPos -= 1.0;*/
+            hor = 
         }
         else if (reminder > 90 && reminder <= 180) {
             /*In quadrant 2*/
-            xPos += 0.5;
-            zPos += 0.5;
+            /*xPos += 1.0;
+            zPos += 1.0;*/
         }
         else if (reminder > 180 && reminder <= 270) {
             /*In quadrant 3*/
-            xPos -= 1.0;
-            zPos += 1.0;
+            /*xPos -= 1.0;
+            zPos += 1.0;*/
         }
         else if (reminder > 270 && reminder < 360) {
             /*In quadrant 4*/
-            xPos -= 1.5;
-            zPos -= 1.5;
+            /*xPos -= 1.0;
+            zPos -= 1.0;*/
         }
         
         /*Determine the player's orientation*/
