@@ -401,7 +401,8 @@ void mouse(int button, int state, int x, int y) {
     float xPos, yPos, zPos;
     float xaxis, yaxis, zaxis;
     int reminder;
-    int hor;
+    float hor, height;
+    float dx, dz;
     static float speed, angle;
     
     
@@ -432,33 +433,53 @@ void mouse(int button, int state, int x, int y) {
         /*Determine player orientation*/
         getViewOrientation(&xaxis, &yaxis, &zaxis);
         
-        reminder = abs((int)yaxis) % 360;
+        reminder = abs((int)yaxis-45) % 360;
         printf("orientation of player = %d \n", reminder);
         
         xPos *= -1;
         yPos *= -1;
         zPos *= -1;
         
+        speed = 10.0; //TESTING!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        angle = 45;  //TESTING!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        
+        height = sin(angle)*(speed);
+            hor = cos(angle)* (speed);
+            dx = abs(sin(reminder)* hor);
+            dz = abs(cos(reminder)* hor);
+            
+            printf("hor = %f, dx = %0.2f, dz = %0.2f \n", hor, dx, dz);
         if (reminder == 360 || (reminder >= 0 && reminder <=90)) {
             /*In quadrant 1*/
             /*xPos += 1.0;
             zPos -= 1.0;*/
-            hor = 
+            
+            
+            xPos -= dx;
+            zPos += dz;
         }
         else if (reminder > 90 && reminder <= 180) {
             /*In quadrant 2*/
             /*xPos += 1.0;
             zPos += 1.0;*/
+            
+            xPos += dx;
+            zPos += dz;
         }
         else if (reminder > 180 && reminder <= 270) {
             /*In quadrant 3*/
             /*xPos -= 1.0;
             zPos += 1.0;*/
+            xPos += dx;
+            zPos -= dz;
+            
         }
         else if (reminder > 270 && reminder < 360) {
             /*In quadrant 4*/
             /*xPos -= 1.0;
             zPos -= 1.0;*/
+            xPos -= dx;
+            zPos -= dz;
         }
         
         /*Determine the player's orientation*/
