@@ -16,6 +16,9 @@
 
 #include "graphics.h"
 
+    /* projectile Information */
+float projectile[10][10];  //dx, dy, velocity
+
 	/* mouse function called by GLUT when a button is pressed or released */
 void mouse(int, int, int, int);
 
@@ -377,14 +380,78 @@ void avoidCubeEdge() {
 /*Show all the current projectils on the screen and upate their position*/
 void updateProjectiles() {
     int i;
+    float dx, dz, dy, angleX, angleY;
+    float xPos, yPos, zPos;
+    float speed, height;
     
     //for (i = 0; i < MOB_COUNT; i++) {
-        /*Update mob position*/
+        /*Update mob position - height*/
+    yPos = projectile[0][1];
+    angleY = projectile[0][7];
+    speed = projectile[0][8];
+    height = nextMobHeight(angleY, speed);
+    //yPos += height;   //TESTING!!!!!!!!!!!!
+    
+        /*Update mob position - plane*/
+    xPos = projectile[0][0];
+    zPos = projectile[0][2];
+    dx = projectile[0][3];
+    dz = projectile[0][5];
+    angleX = projectile[0][6];
+    
+        nextMobLoc(&xPos, &zPos, dx, dz, angleX);
+    
+        /*Update the mob position in the world*/
+        setMobPosition(0, xPos, yPos, zPos, 0);
         
         /*Show mob*/
         showMob(0);
+    
+    /*Save mob configuration on the plane*/
+    
+    projectile[0][0] = xPos;
+    projectile[0][2] = zPos;
+    
+    /*Save mob configuration in flight*/
+    projectile[0][1] = yPos;
        
     //}
+}
+
+void nextMobLoc(float * xPos, float * zPos, float dx, float dz, int angle) {
+    /*Determine what quadrant it's in*/
+    if (angle == 360 || (angle >= 0 && angle <=90)) {
+        /*In quadrant 1*/
+        *xPos += dz;
+        *zPos -= dx;
+    }
+    else if (angle > 90 && angle <= 180) {
+        /*In quadrant 2*/
+        *xPos += dx;
+        *zPos += dz;
+    }
+    else if (angle > 180 && angle <= 270) {
+        /*In quadrant 3*/
+        *xPos -= dz;
+        *zPos += dx;
+        
+    }
+    else if (angle > 270 && angle < 360) {
+        /*In quadrant 4*/
+        *xPos -= dx;
+        *zPos -= dz;
+    }
+}
+
+float nextMobHeight(float angle, float speed) {
+    float height;
+    float radian;
+    
+    radian = angle * M_PI / 180.0f;
+    
+    height = sin(radian) * speed;
+    
+    return height;
 }
 
 	/* called by GLUT when a mouse button is pressed or released */
@@ -452,75 +519,54 @@ void mouse(int button, int state, int x, int y) {
         
         orientAngle = reminder % 90;
         radian = orientAngle * M_PI / 180.0f;  //conver to radian
-        printf("sin = %0.2f, newAngle = %d, hor =%0.2f\n", sin(orientAngle), orientAngle, hor);
+            //printf("sin = %0.2f, newAngle = %d, hor =%0.2f\n", sin(orientAngle), orientAngle, hor);
         
         
         dz = sin(radian) * hor;  //convert to degree
         dx = cos(radian) * hor;
-        /*
-        
-        if (newAngle < 45) {
-            //dz = (sin(radian) * hor);  //convert to degree
-            //dx = (cos(radian) * hor);
-            
-            //dz = sin((float)newAngle)* hor;
-            //dx = cos((float)newAngle)* hor;
-        }
-        else {
-            
-            //dz = sin((float)newAngle-45)* hor;
-            //dx = cos((float)newAngle-45)* hor;
-        }*/
-            
-            /*if (dz < 0.0) {
-               dz *= -1;
-            }
-            
-            if (dx < 0.0) {
-               dx *= -1;
-            }*/
-            
-            printf("hor = %f, dx = %0.2f, dz = %0.2f, newAngle = %d\n", hor, dx, dz, orientAngle);
-            printf("player = xPos = %0.2f, zPos =%0.2f \n", xPos, zPos);
+                    
+            //printf("hor = %f, dx = %0.2f, dz = %0.2f, newAngle = %d\n", hor, dx, dz, orientAngle);
+            //printf("player = xPos = %0.2f, zPos =%0.2f \n", xPos, zPos);
             
             /*Determine what quadrant it's in*/
         if (reminder == 360 || (reminder >= 0 && reminder <=90)) {
-            /*In quadrant 1*/
-            /*xPos += 1.0;
-            zPos -= 1.0;*/
-                        
+            /*In quadrant 1*/                        
             xPos += dz;
             zPos -= dx;
         }
         else if (reminder > 90 && reminder <= 180) {
             /*In quadrant 2*/
-            /*xPos += 1.0;
-            zPos += 1.0;*/
-            
             xPos += dx;
             zPos += dz;
         }
         else if (reminder > 180 && reminder <= 270) {
             /*In quadrant 3*/
-            /*xPos -= 1.0;
-            zPos += 1.0;*/
             xPos -= dz;
             zPos += dx;
             
         }
         else if (reminder > 270 && reminder < 360) {
             /*In quadrant 4*/
-            /*xPos -= 1.0;
-            zPos -= 1.0;*/
             xPos -= dx;
             zPos -= dz;
         }
-        
-        /*Determine the player's orientation*/
-        
+                
         /*Create the mob*/
         //createMob(int number, float x, float y, float z, float mobroty);
         createMob(0, xPos, yPos, zPos, 0);   //should be createMob(mobNum, x, y, z, 0); mobNum++;
+        
+        /*Save mob configuration on the plane*/
+        
+        projectile[0][0] = xPos;
+        projectile[0][2] = zPos;
+        projectile[0][3] = dx;
+        projectile[0][5] = dz;
+        projectile[0][6] = (float)reminder;
+        
+        /*Save mob configuration in flight*/
+        projectile[0][1] = yPos;
+        projectile[0][7] = (float)angle;
+        projectile[0][8] = (float)speed;
         
         printf("xPos = %0.2f, zPos =%0.2f \n", xPos, zPos);
         

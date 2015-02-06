@@ -37,6 +37,8 @@ void updateCloudLoc();
 /*Functions for CIS4820 Assignment 2*/
 void worldOrientation();
 void updateProjectiles();
+void nextMobLoc(float *, float *, float, float, int );
+float nextMobHeight(float , float);
 
 float calSpeed(int);
 float calAngle(int);
