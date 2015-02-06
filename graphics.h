@@ -35,6 +35,9 @@ void updateCloudLoc();
 
 
 /*Functions for CIS4820 Assignment 2*/
+void worldOrientation();
+void updateProjectiles();
+
 float calSpeed(int);
 float calAngle(int);
 

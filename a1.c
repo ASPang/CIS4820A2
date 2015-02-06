@@ -447,28 +447,40 @@ void mouse(int button, int state, int x, int y) {
             hor = cos(angle)* (speed);
             
             
-            int newAngle;
+        int orientAngle;
+        float radian;
         
-        newAngle = reminder % 90;
-        printf("sin = %0.2f, newAngle = %d, hor =%0.2f\n", sin(newAngle), newAngle, hor);
+        orientAngle = reminder % 90;
+        radian = orientAngle * M_PI / 180.0f;  //conver to radian
+        printf("sin = %0.2f, newAngle = %d, hor =%0.2f\n", sin(orientAngle), orientAngle, hor);
+        
+        
+        dz = sin(radian) * hor;  //convert to degree
+        dx = cos(radian) * hor;
+        /*
         
         if (newAngle < 45) {
-            dx = sin((float)newAngle)* hor;
-            dz = cos((float)newAngle)* hor;
-        else {
-            dx = sin((float)newAngle)* hor;
-            dz = cos((float)newAngle)* hor;
-        }
+            //dz = (sin(radian) * hor);  //convert to degree
+            //dx = (cos(radian) * hor);
             
-            if (dz < 0.0) {
+            //dz = sin((float)newAngle)* hor;
+            //dx = cos((float)newAngle)* hor;
+        }
+        else {
+            
+            //dz = sin((float)newAngle-45)* hor;
+            //dx = cos((float)newAngle-45)* hor;
+        }*/
+            
+            /*if (dz < 0.0) {
                dz *= -1;
             }
             
             if (dx < 0.0) {
                dx *= -1;
-            }
+            }*/
             
-            printf("hor = %f, dx = %0.2f, dz = %0.2f, newAngle = %d\n", hor, dx, dz, newAngle);
+            printf("hor = %f, dx = %0.2f, dz = %0.2f, newAngle = %d\n", hor, dx, dz, orientAngle);
             printf("player = xPos = %0.2f, zPos =%0.2f \n", xPos, zPos);
             
             /*Determine what quadrant it's in*/
@@ -477,8 +489,8 @@ void mouse(int button, int state, int x, int y) {
             /*xPos += 1.0;
             zPos -= 1.0;*/
                         
-            xPos -= dx;
-            zPos += dz;
+            xPos += dz;
+            zPos -= dx;
         }
         else if (reminder > 90 && reminder <= 180) {
             /*In quadrant 2*/
@@ -492,8 +504,8 @@ void mouse(int button, int state, int x, int y) {
             /*In quadrant 3*/
             /*xPos -= 1.0;
             zPos += 1.0;*/
-            xPos += dx;
-            zPos -= dz;
+            xPos -= dz;
+            zPos += dx;
             
         }
         else if (reminder > 270 && reminder < 360) {
