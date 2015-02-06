@@ -433,7 +433,7 @@ void mouse(int button, int state, int x, int y) {
         /*Determine player orientation*/
         getViewOrientation(&xaxis, &yaxis, &zaxis);
         
-        reminder = abs((int)yaxis-45) % 360;
+        reminder = abs((int)yaxis) % 360;
         printf("orientation of player = %d \n", reminder);
         
         xPos *= -1;
@@ -445,16 +445,38 @@ void mouse(int button, int state, int x, int y) {
         
         height = sin(angle)*(speed);
             hor = cos(angle)* (speed);
-            dx = abs(sin(reminder)* hor);
-            dz = abs(cos(reminder)* hor);
             
-            printf("hor = %f, dx = %0.2f, dz = %0.2f \n", hor, dx, dz);
+            
+            int newAngle;
+        
+        newAngle = reminder % 90;
+        printf("sin = %0.2f, newAngle = %d, hor =%0.2f\n", sin(newAngle), newAngle, hor);
+        
+        if (newAngle < 45) {
+            dx = sin((float)newAngle)* hor;
+            dz = cos((float)newAngle)* hor;
+        else {
+            dx = sin((float)newAngle)* hor;
+            dz = cos((float)newAngle)* hor;
+        }
+            
+            if (dz < 0.0) {
+               dz *= -1;
+            }
+            
+            if (dx < 0.0) {
+               dx *= -1;
+            }
+            
+            printf("hor = %f, dx = %0.2f, dz = %0.2f, newAngle = %d\n", hor, dx, dz, newAngle);
+            printf("player = xPos = %0.2f, zPos =%0.2f \n", xPos, zPos);
+            
+            /*Determine what quadrant it's in*/
         if (reminder == 360 || (reminder >= 0 && reminder <=90)) {
             /*In quadrant 1*/
             /*xPos += 1.0;
             zPos -= 1.0;*/
-            
-            
+                        
             xPos -= dx;
             zPos += dz;
         }
@@ -487,6 +509,8 @@ void mouse(int button, int state, int x, int y) {
         /*Create the mob*/
         //createMob(int number, float x, float y, float z, float mobroty);
         createMob(0, xPos, yPos, zPos, 0);   //should be createMob(mobNum, x, y, z, 0); mobNum++;
+        
+        printf("xPos = %0.2f, zPos =%0.2f \n", xPos, zPos);
         
         
     }
