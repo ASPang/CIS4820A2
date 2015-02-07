@@ -496,7 +496,16 @@ void objectCollision() {
     int xPos, yPos, zPos;
     int xMax, zMax, min;
     int cube;
-    int i;  //Loop counter
+    int i, c, newX, newZ;  //Loop counter
+    int demoCordsTop[] = {-2,-2,   -2,-1,   -2,0,   -2,1,   -2,2,
+                          -1,-2,   -1,-1,   -1,0,   -1,1,   -1,2,
+                           0,-2,    0,-1,    0,0,    0,1,    0,2,
+                           1,-2,    1,-1,    1,0,    1,1,    1,2,
+                           2,-2,    2,-1,    2,0,    2,1,    2,2};
+    int demoCordsMid[] = {-1,-1,   -1,0,   -1,1,
+                           0,-1,    0,0,    0,1,
+                           1,-1,    1,0,    1,1};
+                        
     
     for (i = 0; i < 10; i++) {
         /*Get current projectile position*/
@@ -511,7 +520,7 @@ void objectCollision() {
             min = 0;
         
             /*Determine if the projectile hit the game wall*/
-            if (xPos <= min || xPos >= xMax || zPos <= min || zPos >= zMax || yPos <= min) {
+            if (xPos <= min || xPos >= xMax || zPos <= min || zPos >= zMax || yPos < min) {
                 hideMob(i);
                 clearProjectile(i);
             }
@@ -522,6 +531,29 @@ void objectCollision() {
                 cube = world[xPos][yPos][zPos];
                 
                 if (cube != 0) {
+                    /*First level of destruction*/
+                    for (c = 0; c < 50; c += 2) {
+                        newX = xPos + demoCordsTop[c];
+                        newZ = zPos + demoCordsTop[c+1];
+                        if (newX >= min && newX < xMax && newZ >= min && newZ < zMax && yPos >= min) {                            world[newX][yPos][newZ] = 0;
+                            printf("newX = %d, newZ =%d \n", newX, newZ);
+                        }
+                    }
+                    
+                    /*Second level of destruction*/
+                    for (c = 0; c < 18; c += 2) {
+                        newX = xPos + demoCordsTop[c];
+                        newZ = zPos + demoCordsTop[c+1];
+                        if (newX >= min && newX < xMax && newZ >= min && newZ < zMax && yPos - 1 >= min) {                            world[newX][yPos-1][newZ] = 0;
+                        }
+                    }
+                    
+                    /*Last cube destruction*/
+                    if (yPos - 2 >= min) {
+                        world[xPos][yPos-2][zPos] = 0;
+                    }
+                    
+                    /*
                     world[xPos][yPos][zPos] = 0;
                     world[xPos][yPos-1][zPos] = 0;
                     world[xPos][yPos-2][zPos] = 0;
@@ -546,7 +578,7 @@ void objectCollision() {
                     world[xPos][yPos-1][zPos-1] = 0;
                     world[xPos][yPos-1][zPos+1] = 0;
                     world[xPos-1][yPos-1][zPos] = 0;
-                    world[xPos+1][yPos-1][zPos] = 0;
+                    world[xPos+1][yPos-1][zPos] = 0;*/
             
             
                     /*Reset projectile*/
@@ -868,7 +900,7 @@ void landscape() {
    mountainTops(); //Add terrain
    cloudFloat();  //Add clounds
 
-    worldOrientation();
+   worldOrientation();
 }
 
 void worldOrientation() {
@@ -918,7 +950,7 @@ void waterFlow() {
 /*Add mountain to the game world*/
 void mountainTops() {
    /*Use Perlin noise to create a mountain terrain*/
-   perlinNoise();   
+   perlinNoise();
 }
 
 /* 
