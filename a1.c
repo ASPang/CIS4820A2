@@ -302,7 +302,7 @@ void update() {
          moveCloud();
           
          /*Update the projectile*/
-          updateProjectiles();
+          moveProjectile();
       }
    }
 }
@@ -376,21 +376,50 @@ void avoidCubeEdge() {
    setViewPosition(x, y + 0.1, z); 
 }
 
+void moveProjectile() {
+    static int resetTime = 1;
+    int diff;
+    int milsec = 10000;    //Milliseconds
+    
+    static clock_t start;
+    clock_t end;
+    
+    /*Determine if timer needs to be reset*/
+    if (resetTime == 1) {
+        /*Reset Timer*/
+        start = clock();     //Get the current time
+        resetTime = 0;       //Set timer flag
+        
+    }
+    else if (resetTime == 0) {
+        /*Determine number of seconds elapsed*/
+        end = clock();
+        diff = (int)((end - start) / milsec);
+        
+        /*Determine if 0.75 seconds have passed*/
+        if (diff >= 5) {
+            updateProjectiles();   //Update cloud location
+            resetTime = 1;   //Reset timer flag
+        }
+    }
+    
+}
 
 /*Show all the current projectils on the screen and upate their position*/
 void updateProjectiles() {
     int i;
     float dx, dz, dy, angleX, angleY;
     float xPos, yPos, zPos;
-    float speed, height;
+    float speed, height, gravity;
     
     //for (i = 0; i < MOB_COUNT; i++) {
         /*Update mob position - height*/
     yPos = projectile[0][1];
     angleY = projectile[0][7];
     speed = projectile[0][8];
-    height = nextMobHeight(angleY, speed);
-    //yPos += height;   //TESTING!!!!!!!!!!!!
+    gravity = projectile[0][9];
+    height = nextMobHeight(angleY, speed, &gravity);
+    yPos += height;   //TESTING!!!!!!!!!!!!
     
         /*Update mob position - plane*/
     xPos = projectile[0][0];
@@ -414,6 +443,7 @@ void updateProjectiles() {
     
     /*Save mob configuration in flight*/
     projectile[0][1] = yPos;
+    projectile[0][9] = gravity;
        
     //}
 }
@@ -443,14 +473,16 @@ void nextMobLoc(float * xPos, float * zPos, float dx, float dz, int angle) {
     }
 }
 
-float nextMobHeight(float angle, float speed) {
+float nextMobHeight(float angle, float speed, float * gravity) {
     float height;
     float radian;
     
     radian = angle * M_PI / 180.0f;
     
-    height = sin(radian) * speed;
+    height = sin(radian) * speed + *gravity;
     
+    *gravity -= 0.03;
+    printf("gravity = %0.2f \n", *gravity);
     return height;
 }
 
@@ -507,7 +539,7 @@ void mouse(int button, int state, int x, int y) {
         yPos *= -1;
         zPos *= -1;
         
-        speed = 10.0; //TESTING!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        speed = 1.0; //TESTING!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         angle = 45;  //TESTING!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         
         height = sin(angle)*(speed);
@@ -567,6 +599,7 @@ void mouse(int button, int state, int x, int y) {
         projectile[0][1] = yPos;
         projectile[0][7] = (float)angle;
         projectile[0][8] = (float)speed;
+        projectile[0][9] = 0.0;
         
         printf("xPos = %0.2f, zPos =%0.2f \n", xPos, zPos);
         
