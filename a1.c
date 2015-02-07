@@ -477,6 +477,7 @@ void nextMobLoc(float * xPos, float * zPos, float dx, float dz, int angle) {
     }
 }
 
+/*Determine the projectiles height*/
 float nextMobHeight(float angle, float speed, float * gravity) {
     float height;
     float radian;
@@ -574,6 +575,8 @@ void mouse(int button, int state, int x, int y) {
     float hor, height;
     float dx, dz;
     static float speed, angle;
+    int orientAngle;
+    float radian;
     
     
     
@@ -616,10 +619,6 @@ void mouse(int button, int state, int x, int y) {
         height = sin(angle)*(speed);
         hor = cos(angle)* (speed);
             
-            
-        int orientAngle;
-        float radian;
-        
         orientAngle = reminder % 90;
         radian = orientAngle * M_PI / 180.0f;  //conver to radian
            
@@ -659,7 +658,7 @@ void mouse(int button, int state, int x, int y) {
         else {
             projNumber++;   //Increase projectile number
         }
-        
+        printf("height %0.2f \n", height);
         printf("xPos = %0.2f, zPos =%0.2f \n", xPos, zPos);
         
         

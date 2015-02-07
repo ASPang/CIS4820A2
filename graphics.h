@@ -40,10 +40,9 @@ void moveProjectile();
 void initProjectiles();
 void updateProjectiles();
 void objectCollision();
+void clearProjectile(int);
 void nextMobLoc(float *, float *, float, float, int );
 float nextMobHeight(float , float, float *);
 
 float calSpeed(int);
 float calAngle(int);
-
-//int projectileNum = 0;
