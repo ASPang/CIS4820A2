@@ -1,3 +1,37 @@
+Modifications For Assignment 2 By Angela Pang
+-------------------------------------------------
+Compiling the Game
+-------------------
+Run the makefile with the following command.
+
+> make
+
+World Interactions
+-------------------
+Gravity:
+Press the F key to toggle on and it on and off. This will also toggle fly mode.
+
+Climbing:
+Walk up to a cube wall that doesn't have another cube stacked on top. Also ensure to look at its top edge in order to climb up.
+
+Moving:
+Use the arrow keys in order to navigate through the world.
+[W] Move forward. With the fly control on and looking up at the sky will allow you to fly up.
+[S] Move backwards.
+[A] Stride left.
+[D] Stride right.
+
+Shooting-Angle:
+Click the right mouse button and drag up or down to set the angle between 0 and 90.
+
+Shooting-Projectile speed:
+Default speed is 0.6. Click the right mouse button and drag right to increase the speed to maximum of 1.0. Drag left to decrease the speed to 0.0. 
+
+Shooting-Launch Projectile: 
+Click the left mouse button to launch the projectile in the direction you're facing.
+
+
+
 
 
 Readme from Assignment 1
