@@ -221,9 +221,9 @@ int checkUpdateTime() {
     double diff;
     
     struct timeval  tv;
-    gettimeofday(&tv, NULL);
     double time_in_mill;
     
+    gettimeofday(&tv, NULL);
     
     /*Determine if the timer has been set*/
     if (resetTime == 1) {
@@ -238,12 +238,8 @@ int checkUpdateTime() {
         /*Determine if 0.08 second has passed*/        
         time_in_mill = (tv.tv_sec) * 1000 + (tv.tv_usec) / 1000 ; // convert tv_sec & tv_usec to millisecond
         
-        //printf("time_in_mill = %f \n", time_in_mill);
-        
         updateEnd = time_in_mill;
         diff = ((updateEnd - updateStart));
-        
-        //printf("diff = %f \n", diff);
         
         if (diff >= 80) {
             resetTime = 1;  //Reset the timer
