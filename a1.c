@@ -18,6 +18,7 @@
 
     /* projectile Information */
 float projectile[10][10];  //dx, dy, velocity
+float projNumber=0;
 
 	/* mouse function called by GLUT when a button is pressed or released */
 void mouse(int, int, int, int);
@@ -398,7 +399,7 @@ void moveProjectile() {
         diff = (int)((end - start) / milsec);
         
         /*Determine if 0.75 seconds have passed*/
-        if (diff >= 50) {
+        if (diff >= 10) {
             updateProjectiles();   //Update cloud location
             resetTime = 1;   //Reset timer flag
         }
@@ -413,40 +414,42 @@ void updateProjectiles() {
     float xPos, yPos, zPos;
     float speed, height, gravity;
     
-    //for (i = 0; i < MOB_COUNT; i++) {
-        /*Update mob position - height*/
-    yPos = projectile[0][1];
-    angleY = projectile[0][7];
-    speed = projectile[0][8];
-    gravity = projectile[0][9];
-    height = nextMobHeight(angleY, speed, &gravity);
-    yPos += height;
-    
-        /*Update mob position - plane*/
-    xPos = projectile[0][0];
-    zPos = projectile[0][2];
-    dx = projectile[0][3];
-    dz = projectile[0][5];
-    angleX = projectile[0][6];
-    
-        nextMobLoc(&xPos, &zPos, dx, dz, angleX);
-    
-        /*Update the mob position in the world*/
-        setMobPosition(0, xPos, yPos, zPos, 0);
+    for (i = 0; i < 10; i++) {
+        /*Get current projectile position*/
+        xPos = projectile[i][0];
+        yPos = projectile[i][1];
+        zPos = projectile[i][2];
         
-        /*Show mob*/
-        showMob(0);
+        if (xPos >= 0) {
+            /*Update mob position - height*/        
+            angleY = projectile[i][7];
+            speed = projectile[i][8];
+            gravity = projectile[i][9];
+            height = nextMobHeight(angleY, speed, &gravity);
+            yPos += height;
     
-    /*Save mob configuration on the plane*/
+            /*Update mob position - plane*/        
+            dx = projectile[i][3];
+            dz = projectile[i][5];
+            angleX = projectile[i][6];
     
-    projectile[0][0] = xPos;
-    projectile[0][2] = zPos;
+            nextMobLoc(&xPos, &zPos, dx, dz, angleX);
+            
+            /*Update the mob position in the world*/
+            setMobPosition(i, xPos, yPos, zPos, 0);
+        
+            /*Show mob*/
+            showMob(i);
     
-    /*Save mob configuration in flight*/
-    projectile[0][1] = yPos;
-    projectile[0][9] = gravity;
-       
-    //}
+            /*Save mob configuration on the plane*/
+            projectile[i][0] = xPos;
+            projectile[i][2] = zPos;
+    
+            /*Save mob configuration in flight*/
+            projectile[i][1] = yPos;
+            projectile[i][9] = gravity;
+        }            
+    }
 }
 
 void nextMobLoc(float * xPos, float * zPos, float dx, float dz, int angle) {
@@ -483,56 +486,72 @@ float nextMobHeight(float angle, float speed, float * gravity) {
     height = sin(radian) * speed + *gravity;
     
     *gravity -= 0.05;
-    //printf("gravity = %0.2f \n", *gravity);
+   
     return height;
 }
 
+/*Determine if any of the projectiles has hit anything ingame*/
 void objectCollision() {
     int xPos, yPos, zPos;
     int xMax, zMax, min;
     int cube;
     int i;  //Loop counter
     
-    /*Get the projectile location*/
-    xPos = projectile[0][0];
-    yPos = projectile[0][1];
-    zPos = projectile[0][2];
-    
-    /*Determine if the projectile hit the boarder*/
-        xMax = WORLDX;
-        zMax = WORLDZ;
-        min = 0;
+    for (i = 0; i < 10; i++) {
+        /*Get current projectile position*/
+        xPos = projectile[i][0];
+        yPos = projectile[i][1];
+        zPos = projectile[i][2];
         
-        /*Determine if the projectile hit the game wall*/
-        if (xPos <= min || xPos >= xMax || zPos <= min || zPos >= zMax) {
-            hideMob(0);
-        }
+        if (xPos >= 0) {    
+            /*Determine if the projectile hit the boarder*/
+            xMax = WORLDX;
+            zMax = WORLDZ;
+            min = 0;
+        
+            /*Determine if the projectile hit the game wall*/
+            if (xPos <= min || xPos >= xMax || zPos <= min || zPos >= zMax || yPos <= min) {
+                hideMob(i);
+                clearProjectile(i);
+            }
         
     
-    /*Determine if the projectile hit the ground*/
-    if (yPos < 47) {
-        cube = world[xPos][yPos-1][zPos];
-    
-        if (cube != 0) {
-            world[xPos][yPos][zPos] = 0;
-            world[xPos][yPos-1][zPos] = 0;
-            world[xPos][yPos-2][zPos] = 0;
+            /*Determine if the projectile hit the ground*/
+            if (yPos < 47) {
+                cube = world[xPos][yPos][zPos];
+                
+                if (cube != 0) {
+                    world[xPos][yPos][zPos] = 0;
+                    world[xPos][yPos-1][zPos] = 0;
+                    world[xPos][yPos-2][zPos] = 0;
             
-            world[xPos-1][yPos][zPos] = 0;
-            world[xPos+1][yPos][zPos] = 0;
-            world[xPos][yPos][zPos-1] = 0;
-            world[xPos][yPos][zPos+1] = 0;
+                    world[xPos-1][yPos][zPos] = 0;
+                    world[xPos+1][yPos][zPos] = 0;
+                    world[xPos-2][yPos][zPos] = 0;
+                    world[xPos+2][yPos][zPos] = 0;
+                    world[xPos][yPos][zPos-1] = 0;
+                    world[xPos][yPos][zPos+1] = 0;
+                    world[xPos][yPos][zPos-2] = 0;
+                    world[xPos][yPos][zPos+2] = 0;
             
-            world[xPos-1][yPos-1][zPos-1] = 0;
-            world[xPos+1][yPos-1][zPos+1] = 0;
-            world[xPos][yPos-1][zPos-1] = 0;
-            world[xPos][yPos-1][zPos+1] = 0;
+                    world[xPos-1][yPos][zPos-1] = 0;
+                    world[xPos+1][yPos][zPos+1] = 0;
+                    world[xPos+1][yPos][zPos-1] = 0;
+                    world[xPos-1][yPos][zPos+1] = 0;
             
-            /*Reset projectile*/
-            hideMob(0);
             
-            for(i = 0; i < 10; i++) {
-                projectile[0][i] = 0;
+                    world[xPos-1][yPos-1][zPos-1] = 0;
+                    world[xPos+1][yPos-1][zPos+1] = 0;
+                    world[xPos][yPos-1][zPos-1] = 0;
+                    world[xPos][yPos-1][zPos+1] = 0;
+                    world[xPos-1][yPos-1][zPos] = 0;
+                    world[xPos+1][yPos-1][zPos] = 0;
+            
+            
+                    /*Reset projectile*/
+                    hideMob(i);
+                    clearProjectile(i);
+                }
             }
         }
     }
@@ -551,7 +570,7 @@ void mouse(int button, int state, int x, int y) {
     static int oldX, oldY, oldZ;
     float xPos, yPos, zPos;
     float xaxis, yaxis, zaxis;
-    int reminder;
+    int reminder, projNum;
     float hor, height;
     float dx, dz;
     static float speed, angle;
@@ -595,7 +614,7 @@ void mouse(int button, int state, int x, int y) {
         angle = 45;  //TESTING!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         
         height = sin(angle)*(speed);
-            hor = cos(angle)* (speed);
+        hor = cos(angle)* (speed);
             
             
         int orientAngle;
@@ -603,57 +622,43 @@ void mouse(int button, int state, int x, int y) {
         
         orientAngle = reminder % 90;
         radian = orientAngle * M_PI / 180.0f;  //conver to radian
-            //printf("sin = %0.2f, newAngle = %d, hor =%0.2f\n", sin(orientAngle), orientAngle, hor);
-        
-        
+           
+        /*Orientation direction*/
         dz = sin(radian) * hor;  //convert to degree
         dx = cos(radian) * hor;
-                    
-            //printf("hor = %f, dx = %0.2f, dz = %0.2f, newAngle = %d\n", hor, dx, dz, orientAngle);
-            //printf("player = xPos = %0.2f, zPos =%0.2f \n", xPos, zPos);
-            
-            /*Determine what quadrant it's in*/
+                                
+        /*Determine what quadrant it's in*/        
+        nextMobLoc(&xPos, &zPos, dx, dz, reminder);
+        nextMobLoc(&xPos, &zPos, dx, dz, reminder);
+        nextMobLoc(&xPos, &zPos, dx, dz, reminder);
+        nextMobLoc(&xPos, &zPos, dx, dz, reminder);
         
-         nextMobLoc(&xPos, &zPos, dx, dz, reminder);
-        //if (reminder == 360 || (reminder >= 0 && reminder <=90)) {
-        //    /*In quadrant 1*/
-        //    xPos += dz;
-        //    zPos -= dx;
-        //}
-        //else if (reminder > 90 && reminder <= 180) {
-            /*In quadrant 2*/
-        //    xPos += dx;
-        //    zPos += dz;
-        //}
-        //else if (reminder > 180 && reminder <= 270) {
-            /*In quadrant 3*/
-        //    xPos -= dz;
-        //    zPos += dx;
-            
-        //}
-        //else if (reminder > 270 && reminder < 360) {
-            /*In quadrant 4*/
-        //    xPos -= dx;
-        //    zPos -= dz;
-        //}
-                
         /*Create the mob*/
-        createMob(0, xPos, yPos, zPos, 0);   //should be createMob(mobNum, x, y, z, 0); mobNum++;
-        showMob(0);
+        //yPos += 0.2;
+        projNum = projNumber;
+        createMob(projNum, xPos, yPos, zPos, 0); 
+        showMob(projNum);
         
-        /*Save mob configuration on the plane*/
-        
-        projectile[0][0] = xPos;
-        projectile[0][2] = zPos;
-        projectile[0][3] = dx;
-        projectile[0][5] = dz;
-        projectile[0][6] = (float)reminder;
+        /*Save mob configuration on the plane*/        
+        projectile[projNum][0] = xPos;
+        projectile[projNum][2] = zPos;
+        projectile[projNum][3] = dx;
+        projectile[projNum][5] = dz;
+        projectile[projNum][6] = (float)reminder;
         
         /*Save mob configuration in flight*/
-        projectile[0][1] = yPos;
-        projectile[0][7] = (float)angle;
-        projectile[0][8] = (float)speed;
-        projectile[0][9] = 0.0;
+        projectile[projNum][1] = yPos;
+        projectile[projNum][7] = (float)angle;
+        projectile[projNum][8] = (float)speed;
+        projectile[projNum][9] = 0.0;
+        
+        /*Determine the number of projectiles in the world*/
+        if (projNumber + 1 > 9) {
+            projNumber = 0;
+        }
+        else {
+            projNumber++;   //Increase projectile number
+        }
         
         printf("xPos = %0.2f, zPos =%0.2f \n", xPos, zPos);
         
@@ -756,15 +761,7 @@ float calAngle(int oldPos) {
     }
         
     printf("new angle = %0.2f \n", angle);
-    
-    /*Determine the angle - method 1 
-    if (angle >= 90.0) {
-        angle = 90.0;
-    }
-    else if (angle <= 0.0) {
-        angle = 0.0;
-    }*/
-    
+        
     return angle;
 }
 
@@ -853,6 +850,9 @@ int i, j, k;
 	/* your code to build the world goes here */
       /*Creates the game landscape*/
       landscape();
+       
+       /*Initiate projectile array*/
+       initProjectiles();
    }
 
 
@@ -1175,5 +1175,26 @@ void updateCloudLoc() {
                 }
             }    
         }
+    }
+}
+
+/*Set up the projectile array*/
+void initProjectiles() {
+    int i, k;
+    
+    for (i = 0; i < 10; i++) {
+        for (k = 0; k < 10; k++) {
+            projectile[i][k] = -1;
+        }
+    }
+}
+
+/*Reset the projectile*/
+void clearProjectile(num) {
+    int i;
+    
+    for (i = 0; i < 10; i++) {
+        projectile[num][i] = -1;
+        
     }
 }
