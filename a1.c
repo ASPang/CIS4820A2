@@ -619,22 +619,32 @@ void mouse(int button, int state, int x, int y) {
         yPos *= -1;
         zPos *= -1;
         
-        speed = 1.0; //TESTING!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        //speed = 1.0; //TESTING!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         //angle = 45;  //TESTING!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        printf("angle = %0.2f \n", angle);
+        printf("angle = %0.2f and speed =%0.2f\n", angle, speed);
 
+        
         
         height = sin(angle)*(speed);
         hor = cos(angle)* (speed);
             
-        orientAngle = reminder % 90;
-        radian = orientAngle * M_PI / 180.0f;  //conver to radian
+        /*Determine if the projectile angle is 90 degrees*/
+        if (angle >= 90) {
+            /*Orientation direction*/
+            dz = 0;
+            dx = 0;
+        }
+        else {
+            orientAngle = reminder % 90;
+            radian = orientAngle * M_PI / 180.0f;  //conver to radian
            
-        /*Orientation direction*/
-        dz = sin(radian) * hor;  //convert to degree
-        dx = cos(radian) * hor;
-                                
-        /*Determine what quadrant it's in*/        
+            /*Orientation direction*/
+            dz = sin(radian) * hor;  //convert to degree
+            dx = cos(radian) * hor;
+           
+        }
+        
+        /*Determine what quadrant it's in*/
         nextProjLoc(&xPos, &zPos, dx, dz, reminder);
         //nextProjLoc(&xPos, &zPos, dx, dz, reminder);
         //nextProjLoc(&xPos, &zPos, dx, dz, reminder);
@@ -679,25 +689,25 @@ void mouse(int button, int state, int x, int y) {
         oldMouPosX = x;
         oldMouPosY = y;
         
-        /*Determine player orientation*/
+        /*Determine player orientation
         getViewOrientation(&xaxis, &yaxis, &zaxis);
         reminder = abs((int)yaxis) % 360;
-        printf("111orientation of player = %d \n", reminder);
+        printf("111orientation of player = %d \n", reminder);*/
                 
         speed = -1;
         angle = -1;
     }
     else if (state == GLUT_UP && button == GLUT_RIGHT_BUTTON){
         /*Determine the speed*/
-        //speed = calSpeed(oldMouPosX);
+        speed = calSpeed(oldMouPosX, x);
         
         /*Determine the angle*/
         angle = calAngle(oldMouPosY, y);
     
-        /*Determine player orientation*/
+        /*Determine player orientation
         getViewOrientation(&xaxis, &yaxis, &zaxis);
         reminder = abs((int)yaxis) % 360;
-        printf("222orientation of player = %d \n", reminder);
+        printf("222orientation of player = %d \n", reminder);*/
         
         //printf("speed = %0.2f and angle is %0.2f\n", speed, angle);
                 
@@ -716,33 +726,67 @@ void mouse(int button, int state, int x, int y) {
     printf("----------\n");
 }
 
-float calSpeed(int oldPos, int y) {
+/*Get the projectile speed/velocity to be travelling at*/
+float calSpeed(int oldX, int newX) {
     float xaxis, yaxis, zaxis;
     float speed;
     
     /*Get the current orientation*/
-    getViewOrientation(&xaxis, &yaxis, &zaxis);
+    //getViewOrientation(&xaxis, &yaxis, &zaxis);
     
     /*Calculate the speed*/
-    speed = xaxis - (float)oldPos;
-    speed /= 1000.0;
+    //speed = xaxis - (float)oldX;
+    speed = newX - oldX;
+    printf("speed = %0.2f \n", speed);
+    
+    //speed /= 1000.0;
     
     /*Modify the speed to be between 0.0 and 1.0*/
-    speed += 0.5;
+    //speed += 0.5;
     
-    if (speed > 1.0) {
+    /*if (speed > 1.0) {
         speed = 1.0;
     }
     else if (speed <= -1.0) {
         speed = 0.0;
-    }    
+    }*/
     
-    printf("speed = %0.2f \n", speed);
+    if (speed >= 360) {
+        speed = 1.0;
+    }
+    else if (speed >= 270) {
+        speed = 0.9;
+    }
+    else if (speed >= 180) {
+        speed = 0.8;
+    }
+    else if (speed >= 90) {
+        speed = 0.7;
+    }
+    else if (speed >= 0) {
+        speed = 0.6;
+    }
+    else if (speed >= -90) {
+        speed = 0.5;
+    }else if (speed >= -180) {
+        speed = 0.4;
+    }
+    else if (speed >= -270) {
+        speed = 0.3;
+    }else if (speed >= -360) {
+        speed = 0.2;
+    }else if (speed < -360) {
+        speed = 0.1;
+    }
+    
+    
+    
+    printf("5555speed = %0.2f \n", speed);
     
     return speed;
 }
 
-/*Determine the projectile angle to be shot at*/
+/*Get the projectile angle to be shot at*/
 float calAngle(int oldY, int newY) {
     float xaxis, yaxis, zaxis;
     float angle;
@@ -754,9 +798,9 @@ float calAngle(int oldY, int newY) {
     /*Calculate the angle*/
     angle = (oldY - newY);
     
-    printf("oldPos = %d, yaxis=%d \n", oldY, newY);
+    //printf("oldPos = %d, yaxis=%d \n", oldY, newY);
     //angle = (angle * (-1)) / 10.0;
-    printf("original angle = %0.2f,,,,,,,", angle);
+    //printf("original angle = %0.2f,,,,,,,", angle);
     
     if (angle > 90) {
         angle = 90;
@@ -786,7 +830,7 @@ float calAngle(int oldY, int newY) {
         angle = abs(angle);
     }*/
         
-    printf("new angle = %0.2f \n", angle);
+    //printf("new angle = %0.2f \n", angle);
         
     return angle;
 }
