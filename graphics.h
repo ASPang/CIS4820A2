@@ -41,8 +41,8 @@ void initProjectiles();
 void updateProjectiles();
 void objectCollision();
 void clearProjectile(int);
-void nextMobLoc(float *, float *, float, float, int );
-float nextMobHeight(float , float, float *);
+void nextProjLoc(float *, float *, float, float, int );
+float nextProjHeight(float , float, float *);
 
-float calSpeed(int);
-float calAngle(int);
+float calSpeed(int, int);
+float calAngle(int, int);

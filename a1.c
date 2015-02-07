@@ -378,6 +378,7 @@ void avoidCubeEdge() {
    setViewPosition(x, y + 0.1, z); 
 }
 
+/*UPdates the projectile overtime*/
 void moveProjectile() {
     static int resetTime = 1;
     int diff;
@@ -425,7 +426,7 @@ void updateProjectiles() {
             angleY = projectile[i][7];
             speed = projectile[i][8];
             gravity = projectile[i][9];
-            height = nextMobHeight(angleY, speed, &gravity);
+            height = nextProjHeight(angleY, speed, &gravity);
             yPos += height;
     
             /*Update mob position - plane*/        
@@ -433,7 +434,7 @@ void updateProjectiles() {
             dz = projectile[i][5];
             angleX = projectile[i][6];
     
-            nextMobLoc(&xPos, &zPos, dx, dz, angleX);
+            nextProjLoc(&xPos, &zPos, dx, dz, angleX);
             
             /*Update the mob position in the world*/
             setMobPosition(i, xPos, yPos, zPos, 0);
@@ -452,7 +453,9 @@ void updateProjectiles() {
     }
 }
 
-void nextMobLoc(float * xPos, float * zPos, float dx, float dz, int angle) {
+
+/*Determine the next location of the projectile*/
+void nextProjLoc(float * xPos, float * zPos, float dx, float dz, int angle) {
     /*Determine what quadrant it's in*/
     if (angle == 360 || (angle >= 0 && angle <=90)) {
         /*In quadrant 1*/
@@ -478,7 +481,7 @@ void nextMobLoc(float * xPos, float * zPos, float dx, float dz, int angle) {
 }
 
 /*Determine the projectiles height*/
-float nextMobHeight(float angle, float speed, float * gravity) {
+float nextProjHeight(float angle, float speed, float * gravity) {
     float height;
     float radian;
     
@@ -501,10 +504,10 @@ void objectCollision() {
                           -1,-2,   -1,-1,   -1,0,   -1,1,   -1,2,
                            0,-2,    0,-1,    0,0,    0,1,    0,2,
                            1,-2,    1,-1,    1,0,    1,1,    1,2,
-                           2,-2,    2,-1,    2,0,    2,1,    2,2};
+                           2,-2,    2,-1,    2,0,    2,1,    2,2};  //First Row of destruction
     int demoCordsMid[] = {-1,-1,   -1,0,   -1,1,
                            0,-1,    0,0,    0,1,
-                           1,-1,    1,0,    1,1};
+                           1,-1,    1,0,    1,1};   //Second Row of destruction
                         
     
     for (i = 0; i < 10; i++) {
@@ -536,7 +539,6 @@ void objectCollision() {
                         newX = xPos + demoCordsTop[c];
                         newZ = zPos + demoCordsTop[c+1];
                         if (newX >= min && newX < xMax && newZ >= min && newZ < zMax && yPos >= min) {                            world[newX][yPos][newZ] = 0;
-                            printf("newX = %d, newZ =%d \n", newX, newZ);
                         }
                     }
                     
@@ -552,35 +554,7 @@ void objectCollision() {
                     if (yPos - 2 >= min) {
                         world[xPos][yPos-2][zPos] = 0;
                     }
-                    
-                    /*
-                    world[xPos][yPos][zPos] = 0;
-                    world[xPos][yPos-1][zPos] = 0;
-                    world[xPos][yPos-2][zPos] = 0;
-            
-                    world[xPos-1][yPos][zPos] = 0;
-                    world[xPos+1][yPos][zPos] = 0;
-                    world[xPos-2][yPos][zPos] = 0;
-                    world[xPos+2][yPos][zPos] = 0;
-                    world[xPos][yPos][zPos-1] = 0;
-                    world[xPos][yPos][zPos+1] = 0;
-                    world[xPos][yPos][zPos-2] = 0;
-                    world[xPos][yPos][zPos+2] = 0;
-            
-                    world[xPos-1][yPos][zPos-1] = 0;
-                    world[xPos+1][yPos][zPos+1] = 0;
-                    world[xPos+1][yPos][zPos-1] = 0;
-                    world[xPos-1][yPos][zPos+1] = 0;
-            
-            
-                    world[xPos-1][yPos-1][zPos-1] = 0;
-                    world[xPos+1][yPos-1][zPos+1] = 0;
-                    world[xPos][yPos-1][zPos-1] = 0;
-                    world[xPos][yPos-1][zPos+1] = 0;
-                    world[xPos-1][yPos-1][zPos] = 0;
-                    world[xPos+1][yPos-1][zPos] = 0;*/
-            
-            
+                                
                     /*Reset projectile*/
                     hideMob(i);
                     clearProjectile(i);
@@ -640,13 +614,15 @@ void mouse(int button, int state, int x, int y) {
         
         reminder = abs((int)yaxis) % 360;
         printf("orientation of player = %d \n", reminder);
-        
+               
         xPos *= -1;
         yPos *= -1;
         zPos *= -1;
         
         speed = 1.0; //TESTING!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        angle = 45;  //TESTING!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        //angle = 45;  //TESTING!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        printf("angle = %0.2f \n", angle);
+
         
         height = sin(angle)*(speed);
         hor = cos(angle)* (speed);
@@ -659,10 +635,10 @@ void mouse(int button, int state, int x, int y) {
         dx = cos(radian) * hor;
                                 
         /*Determine what quadrant it's in*/        
-        nextMobLoc(&xPos, &zPos, dx, dz, reminder);
-        nextMobLoc(&xPos, &zPos, dx, dz, reminder);
-        nextMobLoc(&xPos, &zPos, dx, dz, reminder);
-        nextMobLoc(&xPos, &zPos, dx, dz, reminder);
+        nextProjLoc(&xPos, &zPos, dx, dz, reminder);
+        //nextProjLoc(&xPos, &zPos, dx, dz, reminder);
+        //nextProjLoc(&xPos, &zPos, dx, dz, reminder);
+        //nextProjLoc(&xPos, &zPos, dx, dz, reminder);
         
         /*Create the mob*/
         //yPos += 0.2;
@@ -699,9 +675,14 @@ void mouse(int button, int state, int x, int y) {
         printf("setting up angle and speed \n");   //TESTING!!!!
         
         /*Save the orientation information*/
+        //getViewOrientation(&xaxis, &yaxis, &zaxis);
         oldMouPosX = x;
         oldMouPosY = y;
         
+        /*Determine player orientation*/
+        getViewOrientation(&xaxis, &yaxis, &zaxis);
+        reminder = abs((int)yaxis) % 360;
+        printf("111orientation of player = %d \n", reminder);
                 
         speed = -1;
         angle = -1;
@@ -711,8 +692,12 @@ void mouse(int button, int state, int x, int y) {
         //speed = calSpeed(oldMouPosX);
         
         /*Determine the angle*/
-        angle = calAngle(oldMouPosY);
+        angle = calAngle(oldMouPosY, y);
     
+        /*Determine player orientation*/
+        getViewOrientation(&xaxis, &yaxis, &zaxis);
+        reminder = abs((int)yaxis) % 360;
+        printf("222orientation of player = %d \n", reminder);
         
         //printf("speed = %0.2f and angle is %0.2f\n", speed, angle);
                 
@@ -731,7 +716,7 @@ void mouse(int button, int state, int x, int y) {
     printf("----------\n");
 }
 
-float calSpeed(int oldPos) {
+float calSpeed(int oldPos, int y) {
     float xaxis, yaxis, zaxis;
     float speed;
     
@@ -757,22 +742,32 @@ float calSpeed(int oldPos) {
     return speed;
 }
 
-float calAngle(int oldPos) {
+/*Determine the projectile angle to be shot at*/
+float calAngle(int oldY, int newY) {
     float xaxis, yaxis, zaxis;
     float angle;
     int reminder;
     
     /*Get the current orientation*/
-    getViewOrientation(&xaxis, &yaxis, &zaxis);
+    //getViewOrientation(&xaxis, &yaxis, &zaxis);
     
     /*Calculate the angle*/
-    angle = yaxis - oldPos;
+    angle = (oldY - newY);
+    
+    printf("oldPos = %d, yaxis=%d \n", oldY, newY);
     //angle = (angle * (-1)) / 10.0;
     printf("original angle = %0.2f,,,,,,,", angle);
-    if (angle < 0) {
-        angle += 45;
-    }
     
+    if (angle > 90) {
+        angle = 90;
+    }
+    else if (angle < 0) {
+        angle = 0;
+    }
+    /*if (angle < 0) {
+        angle += 45;
+    }*/
+    /*
     if (angle > 90) {
         
         reminder = (abs((int)angle)) % 90;
@@ -789,7 +784,7 @@ float calAngle(int oldPos) {
     }
     else {
         angle = abs(angle);
-    }
+    }*/
         
     printf("new angle = %0.2f \n", angle);
         
