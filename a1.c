@@ -624,9 +624,9 @@ void mouse(int button, int state, int x, int y) {
         printf("angle = %0.2f and speed =%0.2f\n", angle, speed);
 
         
-        
-        height = sin(angle)*(speed);
-        hor = cos(angle)* (speed);
+        radian = angle * M_PI / 180.0f;  //convert to radian
+        height = sin(radian)*(speed);
+        hor = cos(radian)* (speed);
             
         /*Determine if the projectile angle is 90 degrees*/
         if (angle >= 90) {
@@ -636,10 +636,10 @@ void mouse(int button, int state, int x, int y) {
         }
         else {
             orientAngle = reminder % 90;
-            radian = orientAngle * M_PI / 180.0f;  //conver to radian
+            radian = orientAngle * M_PI / 180.0f;  //convert to radian
            
             /*Orientation direction*/
-            dz = sin(radian) * hor;  //convert to degree
+            dz = sin(radian) * hor;  
             dx = cos(radian) * hor;
            
         }
@@ -685,15 +685,10 @@ void mouse(int button, int state, int x, int y) {
         printf("setting up angle and speed \n");   //TESTING!!!!
         
         /*Save the orientation information*/
-        //getViewOrientation(&xaxis, &yaxis, &zaxis);
         oldMouPosX = x;
         oldMouPosY = y;
-        
-        /*Determine player orientation
-        getViewOrientation(&xaxis, &yaxis, &zaxis);
-        reminder = abs((int)yaxis) % 360;
-        printf("111orientation of player = %d \n", reminder);*/
-                
+             
+        /*Reset speed and angle values*/
         speed = -1;
         angle = -1;
     }
@@ -702,15 +697,7 @@ void mouse(int button, int state, int x, int y) {
         speed = calSpeed(oldMouPosX, x);
         
         /*Determine the angle*/
-        angle = calAngle(oldMouPosY, y);
-    
-        /*Determine player orientation
-        getViewOrientation(&xaxis, &yaxis, &zaxis);
-        reminder = abs((int)yaxis) % 360;
-        printf("222orientation of player = %d \n", reminder);*/
-        
-        //printf("speed = %0.2f and angle is %0.2f\n", speed, angle);
-                
+        angle = calAngle(oldMouPosY, y);                
     }
     else {
         printf("Don't know which button was pressed \n");
@@ -731,26 +718,10 @@ float calSpeed(int oldX, int newX) {
     float xaxis, yaxis, zaxis;
     float speed;
     
-    /*Get the current orientation*/
-    //getViewOrientation(&xaxis, &yaxis, &zaxis);
-    
     /*Calculate the speed*/
-    //speed = xaxis - (float)oldX;
     speed = newX - oldX;
-    printf("speed = %0.2f \n", speed);
     
-    //speed /= 1000.0;
-    
-    /*Modify the speed to be between 0.0 and 1.0*/
-    //speed += 0.5;
-    
-    /*if (speed > 1.0) {
-        speed = 1.0;
-    }
-    else if (speed <= -1.0) {
-        speed = 0.0;
-    }*/
-    
+    /*Modify the speed to be between 0.0 and 1.0*/    
     if (speed >= 360) {
         speed = 1.0;
     }
@@ -779,10 +750,7 @@ float calSpeed(int oldX, int newX) {
         speed = 0.1;
     }
     
-    
-    
-    printf("5555speed = %0.2f \n", speed);
-    
+    /*Return the speed that was selected by the user*/
     return speed;
 }
 
@@ -792,75 +760,20 @@ float calAngle(int oldY, int newY) {
     float angle;
     int reminder;
     
-    /*Get the current orientation*/
-    //getViewOrientation(&xaxis, &yaxis, &zaxis);
-    
     /*Calculate the angle*/
     angle = (oldY - newY);
     
-    //printf("oldPos = %d, yaxis=%d \n", oldY, newY);
-    //angle = (angle * (-1)) / 10.0;
-    //printf("original angle = %0.2f,,,,,,,", angle);
-    
+    /*Modify the angle if it's greater than 90*/
     if (angle > 90) {
         angle = 90;
     }
     else if (angle < 0) {
         angle = 0;
     }
-    /*if (angle < 0) {
-        angle += 45;
-    }*/
-    /*
-    if (angle > 90) {
-        
-        reminder = (abs((int)angle)) % 90;
-        while (reminder > 90) {
-            reminder = (abs((int)reminder)) % 90;
-        }
-        
-        if (reminder == 0) {
-            angle = 90;
-        }
-        else {
-            angle = abs((float)reminder);
-        }
-    }
-    else {
-        angle = abs(angle);
-    }*/
-        
-    //printf("new angle = %0.2f \n", angle);
-        
+    
+    /*Return the angle selected by the user*/
     return angle;
 }
-
-void setProjectile(int oldPos, int newPos, int *diff) {
-    float xaxis, yaxis, zaxis;
-    float x, y, z;
-    
-    /*Determine the current position of the mouse*/
-    getViewPosition(&x, &y, &z);
-    //getViewOrientation(&xaxis, &yaxis, &zaxis);
-    
-    printf("getViewPosition = %0.2f, %0.2f, %0.2f \n", x, y, z);
-    printf("--getViewOrientation = %0.2f, %0.2f, %0.2f \n", xaxis, yaxis, zaxis);
-    
-    /*Calculate the Speed*/
-     //diff = newPos;
-    
-    
-    
-    
-    
-    //oldMouPosX += 500;
-    
-    
-    
-   
-}
-
-
 
 
 /*Main function in the game which sets up the environment and how it looks*/
