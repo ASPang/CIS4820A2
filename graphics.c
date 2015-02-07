@@ -698,7 +698,7 @@ int i, fullscreen;
 
 /* not used at the moment */
 //   loadTexture();
-
+    
 	/* attach functions to GL events */
    glutReshapeFunc (reshape);
    glutDisplayFunc(display);
@@ -706,7 +706,6 @@ int i, fullscreen;
    glutPassiveMotionFunc(motion);
    glutMouseFunc(mouse);
    glutIdleFunc(update);
-
 
 	/* initialize mob and player array to empty */
    initMobArray();

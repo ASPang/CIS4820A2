@@ -173,11 +173,12 @@ int climbCube(int cX, int cY, int cZ) {
 void gameWall() {
    float x, y, z; //Viewpoint coordinates
    float spaceBuffer = 0.5;   //VP buffer space
-   float xMax, zMax, min;  //Game wall boarder
+   float xMax, yMax, zMax, min;  //Game wall boarder
 
    /*Calculate the game wall with 0.2 space buffer and covert it to negative value*/
    xMax = -(WORLDX - spaceBuffer);
    zMax = -(WORLDZ - spaceBuffer);
+   yMax = -(WORLDY - spaceBuffer);
    min = -spaceBuffer;
 
    /*Get the VP current location*/
@@ -196,12 +197,21 @@ void gameWall() {
    else if (z <= zMax) {
       setViewPosition(x, y, zMax);
    }
+   else if (y <= yMax) {
+       setViewPosition(x, yMax, z);
+   }
+   else if (y >= min) {
+       setViewPosition(x, min, z);
+   }
 }
 
 /* 
  * Calculate the amount of time that have passed
  * 1 = true
  * 0 = false
+ */
+/*
+ * References: http://stackoverflow.com/questions/3756323/getting-the-current-time-in-milliseconds
  */
 int checkUpdateTime() {
     static clock_t updateStart;
@@ -210,22 +220,37 @@ int checkUpdateTime() {
     int milsec = 10000; //Milliseconds;
     double diff;
     
+    struct timeval  tv;
+    gettimeofday(&tv, NULL);
+    double time_in_mill;
+    
+    
     /*Determine if the timer has been set*/
     if (resetTime == 1) {
         /*Reset the timer*/
-        updateStart = clock();
         resetTime = 0;
+        
+        time_in_mill = (tv.tv_sec) * 1000 + (tv.tv_usec) / 1000 ; // convert tv_sec & tv_usec to millisecond
+        
+        updateStart = time_in_mill;
     }
     else if (resetTime == 0) {
-        /*Determine if 1 second has passed*/
-        updateEnd = clock();
-        diff = ((updateEnd - updateStart) / milsec);
+        /*Determine if 0.08 second has passed*/        
+        time_in_mill = (tv.tv_sec) * 1000 + (tv.tv_usec) / 1000 ; // convert tv_sec & tv_usec to millisecond
         
-        if (diff >= 0.5) {            
+        //printf("time_in_mill = %f \n", time_in_mill);
+        
+        updateEnd = time_in_mill;
+        diff = ((updateEnd - updateStart));
+        
+        //printf("diff = %f \n", diff);
+        
+        if (diff >= 80) {
             resetTime = 1;  //Reset the timer
             return 1;    //Return true that 1 second has passed
         }
-    }    
+    }
+    
     
     return 0;   //Don't update the function
 }
@@ -322,9 +347,9 @@ void gravity() {
    objX = (int)(x - spaceBuffer) * -1;
    objY = (int)(y - spaceBuffer) * -1;
    objZ = (int)(z - spaceBuffer) * -1;
-
+   
    /*Determine if there's an object based on vp current position*/
-   if (world[objX][objY][objZ] == 0 || y < ((WORLDY-1)*(-1))) {
+   if ((world[objX][objY][objZ] == 0 || y < ((WORLDY-1)*(-1))) && (objY > 0)) {
       avoidCubeEdge();
    }
 }
@@ -375,37 +400,12 @@ void avoidCubeEdge() {
    }
 
    /*Pull the player down the world by 0.1 unit*/
-   setViewPosition(x, y + 0.1, z); 
+   setViewPosition(x, y + 0.2, z);
 }
 
 /*UPdates the projectile overtime*/
 void moveProjectile() {
-    static int resetTime = 1;
-    int diff;
-    int milsec = 10000;    //Milliseconds
-    
-    static clock_t start;
-    clock_t end;
-    
-    /*Determine if timer needs to be reset*/
-    if (resetTime == 1) {
-        /*Reset Timer*/
-        start = clock();     //Get the current time
-        resetTime = 0;       //Set timer flag
-        
-    }
-    else if (resetTime == 0) {
-        /*Determine number of seconds elapsed*/
-        end = clock();
-        diff = (int)((end - start) / milsec);
-        
-        /*Determine if 0.75 seconds have passed*/
-        if (diff >= 10) {
-            updateProjectiles();   //Update cloud location
-            resetTime = 1;   //Reset timer flag
-        }
-    }
-    
+    updateProjectiles();
 }
 
 /*Show all the current projectils on the screen and upate their position*/
@@ -485,12 +485,12 @@ float nextProjHeight(float angle, float speed, float * gravity) {
     float height;
     float radian;
     
-    radian = angle * M_PI / 180.0f;
+    radian = angle * M_PI / 180.0f;     //Convert the degree to radian
+    height = sin(radian) * speed + *gravity;    //Calculate the height
     
-    height = sin(radian) * speed + *gravity;
-    
-    *gravity -= 0.05;
+    *gravity -= 0.05;   //Increase gravity
    
+    /*Return the height*/
     return height;
 }
 
@@ -570,9 +570,6 @@ void objectCollision() {
 	/* -x,y are the screen coordinates when the mouse is pressed or */
 	/*  released */ 
 void mouse(int button, int state, int x, int y) {
-    /*Determine the angle*/
-//  getViewPosition(float *x, float *y, float *z);
-//  getViewOrientation(float *xaxis, float *yaxis, float *zaxis)
     static int oldMouPosX, oldMouPosY;
     static int oldX, oldY, oldZ;
     float xPos, yPos, zPos;
@@ -584,45 +581,19 @@ void mouse(int button, int state, int x, int y) {
     int orientAngle;
     float radian;
     
-    
-    
-    if (button == GLUT_LEFT_BUTTON) {
-      printf("left button - \n");
-    }
-    else if (button == GLUT_MIDDLE_BUTTON) {
-      printf("middle button - \n");
-    }
-    else if (button == GLUT_RIGHT_BUTTON) {
-        printf("right button - \n");
-        
-    }
-    else {
-        printf("ERROR with button - \n");
-    }
-    
-        
-    if (state == GLUT_DOWN && button == GLUT_LEFT_BUTTON) {
-        printf("down - ");
-        
-        /*Fire the projectile*/
-        
+    /*Determine the mouse action*/
+    if (state == GLUT_DOWN && button == GLUT_LEFT_BUTTON) {        
         /*Get the current position*/
         getViewPosition(&xPos, &yPos, &zPos);
         
         /*Determine player orientation*/
-        getViewOrientation(&xaxis, &yaxis, &zaxis);
-        
+        getViewOrientation(&xaxis, &yaxis, &zaxis);        
         reminder = abs((int)yaxis) % 360;
-        printf("orientation of player = %d \n", reminder);
-               
+        
+        /*Convert position to be positive for the projectile*/
         xPos *= -1;
         yPos *= -1;
         zPos *= -1;
-        
-        //speed = 1.0; //TESTING!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        //angle = 45;  //TESTING!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        printf("angle = %0.2f and speed =%0.2f\n", angle, speed);
-
         
         radian = angle * M_PI / 180.0f;  //convert to radian
         height = sin(radian)*(speed);
@@ -646,9 +617,6 @@ void mouse(int button, int state, int x, int y) {
         
         /*Determine what quadrant it's in*/
         nextProjLoc(&xPos, &zPos, dx, dz, reminder);
-        //nextProjLoc(&xPos, &zPos, dx, dz, reminder);
-        //nextProjLoc(&xPos, &zPos, dx, dz, reminder);
-        //nextProjLoc(&xPos, &zPos, dx, dz, reminder);
         
         /*Create the mob*/
         //yPos += 0.2;
@@ -676,14 +644,11 @@ void mouse(int button, int state, int x, int y) {
         else {
             projNumber++;   //Increase projectile number
         }
-        printf("height %0.2f \n", height);
-        printf("xPos = %0.2f, zPos =%0.2f \n", xPos, zPos);
         
-        
+        /*Inform the User of the new angle set*/
+        printf("Shot Projectile at: \nAngle = %0.2f and Speed =%0.2f\n ------\n", angle, speed);  
     }
-    else if (state == GLUT_DOWN && button == GLUT_RIGHT_BUTTON) {
-        printf("setting up angle and speed \n");   //TESTING!!!!
-        
+    else if (state == GLUT_DOWN && button == GLUT_RIGHT_BUTTON) {        
         /*Save the orientation information*/
         oldMouPosX = x;
         oldMouPosY = y;
@@ -697,20 +662,11 @@ void mouse(int button, int state, int x, int y) {
         speed = calSpeed(oldMouPosX, x);
         
         /*Determine the angle*/
-        angle = calAngle(oldMouPosY, y);                
+        angle = calAngle(oldMouPosY, y);
+        
+        /*Inform the User of the new angle set*/
+        printf("Set Angle = %0.2f and Speed =%0.2f\n ------\n", angle, speed);        
     }
-    else {
-        printf("Don't know which button was pressed \n");
-    }
-
-    //printf("Button number = %d and the state = %d \n", button, state);
-    printf("mouseX = %d, mouseY = %d\n", x, y);
-    
-    printf("old mouse pos = %d, %d \n", oldMouPosX, oldMouPosY);
-    //setProjectile(oldMouPosX, oldMouPosY, &speed, &angle);
-    //oldMouPosX += 1;
-    //printf("old mouse pos = %d, %d \n", oldMouPosX, oldMouPosY);
-    printf("----------\n");
 }
 
 /*Get the projectile speed/velocity to be travelling at*/
