@@ -303,6 +303,7 @@ void update() {
           
          /*Update the projectile*/
           moveProjectile();
+          objectCollision();
       }
    }
 }
@@ -397,7 +398,7 @@ void moveProjectile() {
         diff = (int)((end - start) / milsec);
         
         /*Determine if 0.75 seconds have passed*/
-        if (diff >= 5) {
+        if (diff >= 50) {
             updateProjectiles();   //Update cloud location
             resetTime = 1;   //Reset timer flag
         }
@@ -419,7 +420,7 @@ void updateProjectiles() {
     speed = projectile[0][8];
     gravity = projectile[0][9];
     height = nextMobHeight(angleY, speed, &gravity);
-    yPos += height;   //TESTING!!!!!!!!!!!!
+    yPos += height;
     
         /*Update mob position - plane*/
     xPos = projectile[0][0];
@@ -481,9 +482,60 @@ float nextMobHeight(float angle, float speed, float * gravity) {
     
     height = sin(radian) * speed + *gravity;
     
-    *gravity -= 0.03;
-    printf("gravity = %0.2f \n", *gravity);
+    *gravity -= 0.05;
+    //printf("gravity = %0.2f \n", *gravity);
     return height;
+}
+
+void objectCollision() {
+    int xPos, yPos, zPos;
+    int xMax, zMax, min;
+    int cube;
+    int i;  //Loop counter
+    
+    /*Get the projectile location*/
+    xPos = projectile[0][0];
+    yPos = projectile[0][1];
+    zPos = projectile[0][2];
+    
+    /*Determine if the projectile hit the boarder*/
+        xMax = WORLDX;
+        zMax = WORLDZ;
+        min = 0;
+        
+        /*Determine if the projectile hit the game wall*/
+        if (xPos <= min || xPos >= xMax || zPos <= min || zPos >= zMax) {
+            hideMob(0);
+        }
+        
+    
+    /*Determine if the projectile hit the ground*/
+    if (yPos < 47) {
+        cube = world[xPos][yPos-1][zPos];
+    
+        if (cube != 0) {
+            world[xPos][yPos][zPos] = 0;
+            world[xPos][yPos-1][zPos] = 0;
+            world[xPos][yPos-2][zPos] = 0;
+            
+            world[xPos-1][yPos][zPos] = 0;
+            world[xPos+1][yPos][zPos] = 0;
+            world[xPos][yPos][zPos-1] = 0;
+            world[xPos][yPos][zPos+1] = 0;
+            
+            world[xPos-1][yPos-1][zPos-1] = 0;
+            world[xPos+1][yPos-1][zPos+1] = 0;
+            world[xPos][yPos-1][zPos-1] = 0;
+            world[xPos][yPos-1][zPos+1] = 0;
+            
+            /*Reset projectile*/
+            hideMob(0);
+            
+            for(i = 0; i < 10; i++) {
+                projectile[0][i] = 0;
+            }
+        }
+    }
 }
 
 	/* called by GLUT when a mouse button is pressed or released */
@@ -561,31 +613,33 @@ void mouse(int button, int state, int x, int y) {
             //printf("player = xPos = %0.2f, zPos =%0.2f \n", xPos, zPos);
             
             /*Determine what quadrant it's in*/
-        if (reminder == 360 || (reminder >= 0 && reminder <=90)) {
-            /*In quadrant 1*/                        
-            xPos += dz;
-            zPos -= dx;
-        }
-        else if (reminder > 90 && reminder <= 180) {
+        
+         nextMobLoc(&xPos, &zPos, dx, dz, reminder);
+        //if (reminder == 360 || (reminder >= 0 && reminder <=90)) {
+        //    /*In quadrant 1*/
+        //    xPos += dz;
+        //    zPos -= dx;
+        //}
+        //else if (reminder > 90 && reminder <= 180) {
             /*In quadrant 2*/
-            xPos += dx;
-            zPos += dz;
-        }
-        else if (reminder > 180 && reminder <= 270) {
+        //    xPos += dx;
+        //    zPos += dz;
+        //}
+        //else if (reminder > 180 && reminder <= 270) {
             /*In quadrant 3*/
-            xPos -= dz;
-            zPos += dx;
+        //    xPos -= dz;
+        //    zPos += dx;
             
-        }
-        else if (reminder > 270 && reminder < 360) {
+        //}
+        //else if (reminder > 270 && reminder < 360) {
             /*In quadrant 4*/
-            xPos -= dx;
-            zPos -= dz;
-        }
+        //    xPos -= dx;
+        //    zPos -= dz;
+        //}
                 
         /*Create the mob*/
-        //createMob(int number, float x, float y, float z, float mobroty);
         createMob(0, xPos, yPos, zPos, 0);   //should be createMob(mobNum, x, y, z, 0); mobNum++;
+        showMob(0);
         
         /*Save mob configuration on the plane*/
         
